@@ -1,5 +1,6 @@
 using System;
 using Camera;
+using UnityEditor.ShaderGraph.Drawing;
 using UnityEngine;
 using Utils.Singleton;
 
@@ -13,6 +14,7 @@ namespace Player.ActionHandlers
         public event Action<Vector3> PointerDownEvent;
         public event Action<Vector3> ClickEvent;
         public event Action<Vector3> PointerUpEvent;
+        public event Action<Vector3> DragEvent;
         public event Action<Vector3> DragStartEvent;
         public event Action<Vector3> DragEndEvent;
 
@@ -35,6 +37,15 @@ namespace Player.ActionHandlers
                 PointerDownEvent?.Invoke(_pointerDownPosition);
                 
                 _pointerDownPosition = new Vector3(_pointerDownPosition.x, _pointerDownPosition.y, .0f);
+            }
+            else if(Input.GetMouseButton(0))
+            {
+                if (_isDrag)
+                {
+                    var currentInput = _pointerDownPosition - CameraHolder.Instance.MainCamera.ScreenToWorldPoint(Input.mousePosition);
+                    DragEvent?.Invoke(currentInput);
+                    _pointerDownPosition = CameraHolder.Instance.MainCamera.ScreenToWorldPoint(Input.mousePosition);
+                }
             }
             else if (Input.GetMouseButtonUp(0))
             {
@@ -79,6 +90,7 @@ namespace Player.ActionHandlers
             DragStartEvent = dragStartEvent;
             DragEndEvent = dragEndEvent;
         }
+        
 
         public void ClearEvents()
         {
